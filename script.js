@@ -12,11 +12,15 @@ const clearStorageBtn = document.getElementById('clear-storage');
 const downloadBtn = document.getElementById('download');
 const { body } = document;
 
-// Global Variables
+const canvas = document.createElement('canvas')
+canvas.id= 'canvas';
+const context = canvas.getContext('2d');
 
+
+// Global Variables
 let currentSize = 10;
 let bucketColor = '#FFFFFF';
-let currentColor = '#A51DAB';
+let currentColor = '#487EB0';
 // let isEraser = false;
 // let isMouseDown = false;
 // let drawnArray = [];
@@ -61,14 +65,13 @@ let currentColor = '#A51DAB';
 
 // }
 
-// Create Canvas
+// Function to create Canvas (append the canvasx to the body of the page)
 function createCanvas() {
-  // canvas.width = ;
-  // canvas.height = ;
-  // context.fillStyle = ;
-  // context.fillRect();
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight - 50; // Taking in consideration the 50px of the tool bar at the top.
+  context.fillStyle = bucketColor;
+  context.fillRect(0, 0, canvas.width, canvas.height);
   body.appendChild(canvas);
-
 }
 
 // // Clear Canvas
@@ -195,5 +198,5 @@ canvas.addEventListener('mouseup', () => {
 // // Event Listener
 // brushIcon.addEventListener('click', switchToBrush);
 
-// On Load
+// Create the Canvas On Load
 createCanvas();
