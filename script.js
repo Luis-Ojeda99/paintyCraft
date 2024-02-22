@@ -21,57 +21,82 @@ const context = canvas.getContext('2d');
 let currentSize = 10;
 let bucketColor = '#FFFFFF';
 let currentColor = '#487EB0';
-// let isEraser = false;
+let isEraser = false;
 // let isMouseDown = false;
 // let drawnArray = [];
 
 // Formatting Brush Size
-// function displayBrushSize() {
-
-// }
+function displayBrushSize() {
+  if (brushSlider.value < 10) {
+    brushSize.textContent = `0${brushSlider.value}`;
+  }
+  else {
+    brushSize.textContent = brushSlider.value;
+  }
+}
 
 // Setting Brush Size
-// brushSlider.addEventListener('change', () => {
-
-// });
+brushSlider.addEventListener('change', () => {
+  currentSize = brushSlider.value;
+  displayBrushSize();
+});
 
 // Setting Brush Color
-// brushColorBtn.addEventListener('change', () => {
+brushColorBtn.addEventListener('change', () => {
+  isEraser =false;
+  currentColor =`#${brushColorBtn.value}`;
+});
 
-// });
+// Setting the Background color
+bucketColorBtn.addEventListener('change', () => {
+  bucketColor = `#${bucketColorBtn.value}`;
 
-// Setting Background Color
-// bucketColorBtn.addEventListener('change', () => {
+// CreateCanvas again with the new bacgkround color
+  createCanvas();
+});
 
-// });
+// Eraser function
+eraser.addEventListener('click', () => {
+  isEraser = true;
 
-// // Eraser
-// eraser.addEventListener('click', () => {
+  // Set eraser as the active tool
+  activeToolEl.textContent = 'Eraser';
 
-//   brushIcon.style.color = 'white';
-//   eraser.style.color = 'black';
-//   activeToolEl.textContent = 'Eraser';
+  // Change colors of brushIcon and ereser icon to show which one is active
+  brushIcon.style.color = 'white';
+  eraser.style.color = 'black';
+  
+  currentColor = bucketColor;
+  currentSize = 50;
+});
 
-// });
+// Function to switch back to the Brush as the active tool
+function switchToBrush() {
+  isEraser = false;
 
-// // Switch back to Brush
-// function switchToBrush() {
-//   isEraser = false;
-//   activeToolEl.textContent = 'Brush';
-//   brushIcon.style.color = 'black';
-//   eraser.style.color = 'white';
-//   currentColor = `#${brushColorBtn.value}`;
-//   currentSize = 10;
+  // Set brush as the active tool
+  activeToolEl.textContent = 'Brush';
 
-// }
+  // Change colors of brushIcon and ereser icon to show which one is active
+  brushIcon.style.color = 'black';
+  eraser.style.color = 'white';
+
+  currentColor = `#${brushColorBtn.value}`;
+  currentSize = 10;
+  brushSlider.value = 10;
+  displayBrushSize();
+}
 
 // Function to create Canvas (append the canvasx to the body of the page)
 function createCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight - 50; // Taking in consideration the 50px of the tool bar at the top.
+  
   context.fillStyle = bucketColor;
   context.fillRect(0, 0, canvas.width, canvas.height);
+  
   body.appendChild(canvas);
+  switchToBrush();
 }
 
 // // Clear Canvas
@@ -195,8 +220,8 @@ canvas.addEventListener('mouseup', () => {
 //   setTimeout(switchToBrush, 1500);
 // });
 
-// // Event Listener
-// brushIcon.addEventListener('click', switchToBrush);
+// Event Listener
+brushIcon.addEventListener('click', switchToBrush);
 
 // Create the Canvas On Load
 createCanvas();
