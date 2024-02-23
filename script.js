@@ -1,3 +1,4 @@
+const BRUSH_TIMEOUT = 1500;
 const activeToolEl = document.getElementById('active-tool');
 const brushColorBtn = document.getElementById('brush-color');
 const brushIcon = document.getElementById('brush');
@@ -35,42 +36,6 @@ function displayBrushSize() {
   }
 }
 
-// Setting Brush Size
-brushSlider.addEventListener('change', () => {
-  currentSize = brushSlider.value;
-  displayBrushSize();
-});
-
-// Setting Brush Color
-brushColorBtn.addEventListener('change', () => {
-  isEraser =false;
-  currentColor =`#${brushColorBtn.value}`;
-});
-
-// Setting the Background color
-bucketColorBtn.addEventListener('change', () => {
-  bucketColor = `#${bucketColorBtn.value}`;
-  createCanvas();
-
-  // Restore what it was there before the Canvas was re-recreated.
-  restoreCanvas();
-});
-
-// Eraser function
-eraser.addEventListener('click', () => {
-  isEraser = true;
-
-  // Set eraser as the active tool
-  activeToolEl.textContent = 'Eraser';
-
-  // Change colors of brushIcon and ereser icon to show which one is active
-  brushIcon.style.color = 'white';
-  eraser.style.color = 'black';
-  
-  currentColor = bucketColor;
-  currentSize = 50;
-});
-
 // Function to switch back to the Brush as the active tool
 function switchToBrush() {
   isEraser = false;
@@ -88,6 +53,11 @@ function switchToBrush() {
   displayBrushSize();
 }
 
+// Function to set the timeout for the message in Active tool
+function brushTimeSetTimeout(milliSeconds) {
+  setTimeout(switchToBrush, milliSeconds);
+}
+
 // Function to create Canvas (append the canvasx to the body of the page)
 function createCanvas() {
   canvas.width = window.innerWidth;
@@ -100,17 +70,7 @@ function createCanvas() {
   switchToBrush();
 }
 
-// Clear the Canvas
-clearCanvasBtn.addEventListener('click', () => {
-  createCanvas();
-  drawnArray = [];
-
-  // Update active Tool
-  activeToolEl.textContent = 'Canvas Cleared';
-  setTimeout(switchToBrush, 1500);
-});
-
-// Function to draw what is cirrently stored in DrawnArray
+// Function to draw what is currently stored in drawnArray
 function restoreCanvas() {
   for (let i = 1; i < drawnArray.length; i++) {
     context.beginPath();
@@ -127,7 +87,7 @@ function restoreCanvas() {
   }
 }
 
-// FUnction to store Drawn Lines in DrawnArray for soring Data
+// Function to store Drawn Lines in DrawnArray for soring Data
 function storeDrawn(x, y, size, color, erase) {
   const line = {
     x,
@@ -136,11 +96,10 @@ function storeDrawn(x, y, size, color, erase) {
     color,
     erase,
   };
-  console.log(line);
   drawnArray.push(line);
 }
 
-// Get the mouse position
+// Function to get the mouse position
 function getMousePosition(event) {
   const boundaries = canvas.getBoundingClientRect();
   return {
@@ -149,7 +108,53 @@ function getMousePosition(event) {
   };
 }
 
-// Mouse Down listener
+// Setting Brush Color
+brushColorBtn.addEventListener('change', () => {
+  isEraser =false;
+  currentColor =`#${brushColorBtn.value}`;
+});
+
+// Setting the Background color
+bucketColorBtn.addEventListener('change', () => {
+  bucketColor = `#${bucketColorBtn.value}`;
+  createCanvas();
+
+  // Restore what it was there before the Canvas was re-recreated.
+  restoreCanvas();
+});
+
+// Setting Brush Size
+brushSlider.addEventListener('change', () => {
+  currentSize = brushSlider.value;
+  displayBrushSize();
+});
+
+// Eraser 
+eraser.addEventListener('click', () => {
+  isEraser = true;
+
+  // Set eraser as the active tool
+  activeToolEl.textContent = 'Eraser';
+
+  // Change colors of brushIcon and ereser icon to show which one is active
+  brushIcon.style.color = 'white';
+  eraser.style.color = 'black';
+  
+  currentColor = bucketColor;
+  currentSize = 50;
+});
+
+// Clear the Canvas
+clearCanvasBtn.addEventListener('click', () => {
+  createCanvas();
+  drawnArray = [];
+
+  // Update active Tool
+  activeToolEl.textContent = 'Canvas Cleared';
+  brushTimeSetTimeout(BRUSH_TIMEOUT);
+});
+
+// Mouse Down 
 canvas.addEventListener('mousedown', (event) => {
   isMouseDown = true;
   const currentPosition = getMousePosition(event);
@@ -160,7 +165,7 @@ canvas.addEventListener('mousedown', (event) => {
   context.strokeStyle = currentColor;
 });
 
-// Mouse Move listener
+// Mouse Move 
 canvas.addEventListener('mousemove', (event) => {
   if (isMouseDown) {
     const currentPosition = getMousePosition(event);
@@ -184,43 +189,53 @@ canvas.addEventListener('mouseup', () => {
   isMouseDown = false;
 });
 
-// // Save to Local Storage
-// saveStorageBtn.addEventListener('click', () => {
+// Save to Local Storage
+saveStorageBtn.addEventListener('click', () => {
+  localStorage.setItem('savedCanvas', JSON.stringify(drawnArray));
+  
+  // Display message in Active Tool
+  activeToolEl.textContent = 'Canvas Saved';
+  brushTimeSetTimeout(BRUSH_TIMEOUT);
+});
 
-//   // Active Tool
-//   activeToolEl.textContent = 'Canvas Saved';
-//   setTimeout(switchToBrush, 1500);
-// });
+// Load from Local Storage
+loadStorageBtn.addEventListener('click', () => {
+  if (localStorage.getItem('savedCanvas')) {
+    // Re-pain the data from the drawnArray
+    drawnArray = JSON.parse(localStorage.savedCanvas);
+    restoreCanvas();
 
-// // Load from Local Storage
-// loadStorageBtn.addEventListener('click', () => {
-//   if (localStorage.) {
-//     drawnArray = JSON(localStorage.);
+    // Display message in Active Tool
+    activeToolEl.textContent = 'Canvas Loaded';
+    brushTimeSetTimeout(BRUSH_TIMEOUT);
+  } 
+  else {
+    activeToolEl.textContent = 'No Canvas found';
+    brushTimeSetTimeout(BRUSH_TIMEOUT);
+  }
 
-//   // Active Tool
-//     activeToolEl.textContent = 'Canvas Loaded';
-//     setTimeout(switchToBrush, 1500);
-//   } 
+});
 
-// });
+// Clear Local Storage
+clearStorageBtn.addEventListener('click', () => {
+  localStorage.removeItem('savedCanvas');
 
-// // Clear Local Storage
-// clearStorageBtn.addEventListener('click', () => {
+  // Display message in Active Tool
+  activeToolEl.textContent = 'Local Storage Cleared';
+  brushTimeSetTimeout(BRUSH_TIMEOUT);
+});
 
-//   // Active Tool
-//   activeToolEl.textContent = 'Local Storage Cleared';
-//   setTimeout(switchToBrush, 1500);
-// });
+// Download image
+downloadBtn.addEventListener('click', () => {
+  downloadBtn.href = canvas.toDataURL('image/jpeg', 1);
+  downloadBtn.download = 'PaintyCraftart.jpeg';
 
-// // Download Image
-// downloadBtn.addEventListener('click', () => {
+  // Display message in Active Tool
+  activeToolEl.textContent = 'Image File Saved';
+  brushTimeSetTimeout(BRUSH_TIMEOUT);
+});
 
-//   // Active Tool
-//   activeToolEl.textContent = 'Image File Saved';
-//   setTimeout(switchToBrush, 1500);
-// });
-
-// Event Listener
+// Evennt listener for brushIcon
 brushIcon.addEventListener('click', switchToBrush);
 
 // Create the Canvas On Load
